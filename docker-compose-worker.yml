@@ -1,0 +1,25 @@
+version: "3.7"
+services:
+  worker:
+    image: d3vm/locust-ci-cd:main
+    restart: always
+    networks:
+      - locust-worker
+    command: -f /mnt/locust/locustfile.py --headless --worker --master-host 10.0.0.2
+    labels:
+      - "com.centurylinklabs.watchtower.enable=true"
+      - "com.centurylinklabs.watchtower.scope=locust"
+
+  watchtower:
+     image: containrrr/watchtower:latest
+     restart: unless-stopped
+     command: --scope locust --cleanup --interval 30
+     environment:
+       - REPO_USER=
+       - REPO_PASS=
+     volumes:
+       - /etc/localtime:/etc/localtime:ro
+       - /var/run/docker.sock:/var/run/docker.sock:rw  
+  
+networks:
+  locust-worker:

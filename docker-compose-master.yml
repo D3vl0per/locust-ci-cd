@@ -1,0 +1,28 @@
+version: "3.7"
+services:
+  locust-master:
+    image: locust-ci-cd
+    ports:
+     - "8089:8089"
+     #Private network IP
+     - 10.0.0.2:5557:5557
+    networks:
+      - locust-master
+    command: -f /mnt/locust/locustfile.py --master
+    labels:
+      - "com.centurylinklabs.watchtower.enable=true"
+      - "com.centurylinklabs.watchtower.scope=locust"
+  
+  watchtower:
+     image: containrrr/watchtower:latest
+     restart: unless-stopped
+     command: --scope locust --cleanup --interval 30
+     environment:
+       - REPO_USER=       
+       - REPO_PASS= 
+     volumes:
+       - /etc/localtime:/etc/localtime:ro
+       - /var/run/docker.sock:/var/run/docker.sock:rw
+
+networks:
+  locust-master:
